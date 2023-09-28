@@ -1,15 +1,15 @@
 resource "shoreline_notebook" "etcd_high_fsync_durations_incident" {
   name       = "etcd_high_fsync_durations_incident"
   data       = file("${path.module}/data/etcd_high_fsync_durations_incident.json")
-  depends_on = [shoreline_action.invoke_ping_traceroute,shoreline_action.invoke_etcd_fsync_check,shoreline_action.invoke_etcd_config_update]
+  depends_on = [shoreline_action.invoke_etcd_ping_traceroute,shoreline_action.invoke_etcd_fsync_check,shoreline_action.invoke_etcd_config_update]
 }
 
-resource "shoreline_file" "ping_traceroute" {
-  name             = "ping_traceroute"
-  input_file       = "${path.module}/data/ping_traceroute.sh"
-  md5              = filemd5("${path.module}/data/ping_traceroute.sh")
+resource "shoreline_file" "etcd_ping_traceroute" {
+  name             = "etcd_ping_traceroute"
+  input_file       = "${path.module}/data/etcd_ping_traceroute.sh"
+  md5              = filemd5("${path.module}/data/etcd_ping_traceroute.sh")
   description      = "Check network connectivity and latency to Etcd server"
-  destination_path = "/agent/scripts/ping_traceroute.sh"
+  destination_path = "/agent/scripts/etcd_ping_traceroute.sh"
   resource_query   = "host"
   enabled          = true
 }
@@ -34,14 +34,14 @@ resource "shoreline_file" "etcd_config_update" {
   enabled          = true
 }
 
-resource "shoreline_action" "invoke_ping_traceroute" {
-  name        = "invoke_ping_traceroute"
+resource "shoreline_action" "invoke_etcd_ping_traceroute" {
+  name        = "invoke_etcd_ping_traceroute"
   description = "Check network connectivity and latency to Etcd server"
-  command     = "`chmod +x /agent/scripts/ping_traceroute.sh && /agent/scripts/ping_traceroute.sh`"
+  command     = "`chmod +x /agent/scripts/etcd_ping_traceroute.sh && /agent/scripts/etcd_ping_traceroute.sh`"
   params      = ["ETCD_SERVER_IP"]
-  file_deps   = ["ping_traceroute"]
+  file_deps   = ["etcd_ping_traceroute"]
   enabled     = true
-  depends_on  = [shoreline_file.ping_traceroute]
+  depends_on  = [shoreline_file.etcd_ping_traceroute]
 }
 
 resource "shoreline_action" "invoke_etcd_fsync_check" {

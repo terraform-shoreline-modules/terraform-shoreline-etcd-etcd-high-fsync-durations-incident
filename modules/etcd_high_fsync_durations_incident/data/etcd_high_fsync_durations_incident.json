@@ -3,15 +3,15 @@
   "description": "The Etcd high fsync durations incident occurs when the fsync duration of the Etcd service exceeds a certain threshold. This can be caused by various factors, such as high load, network issues, or other system errors. When this incident occurs, it can impact the performance and availability of the Etcd service, and it requires immediate attention from the responsible team to diagnose and resolve the underlying issue.",
   "params": [
     {
+      "name": "TIMEFRAME",
+      "value": ""
+    },
+    {
       "name": "CONCURRENT_COMPACTING_PROCESSES",
       "value": ""
     },
     {
       "name": "DISK_DEVICE",
-      "value": ""
-    },
-    {
-      "name": "TIMEFRAME",
       "value": ""
     },
     {
@@ -23,11 +23,11 @@
       "value": ""
     },
     {
-      "name": "ETCD_METRICS_ENDPOINT",
+      "name": "WAL_SYNC_INTERVAL",
       "value": ""
     },
     {
-      "name": "WAL_SYNC_INTERVAL",
+      "name": "ETCD_METRICS_ENDPOINT",
       "value": ""
     },
     {
@@ -108,7 +108,7 @@
       "name": "cell_11",
       "type": "OP_LANG",
       "enabled": true,
-      "content": "host | host_name=$HOST_NAME | invoke_ping_traceroute($ETCD_SERVER_IP)"
+      "content": "host | host_name=$HOST_NAME | invoke_etcd_ping_traceroute($ETCD_SERVER_IP)"
     },
     {
       "name": "cell_12",
