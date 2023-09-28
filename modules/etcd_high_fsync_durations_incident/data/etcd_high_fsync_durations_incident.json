@@ -1,0 +1,150 @@
+{
+  "name": "etcd_high_fsync_durations_incident",
+  "description": "The Etcd high fsync durations incident occurs when the fsync duration of the Etcd service exceeds a certain threshold. This can be caused by various factors, such as high load, network issues, or other system errors. When this incident occurs, it can impact the performance and availability of the Etcd service, and it requires immediate attention from the responsible team to diagnose and resolve the underlying issue.",
+  "params": [
+    {
+      "name": "CONCURRENT_COMPACTING_PROCESSES",
+      "value": ""
+    },
+    {
+      "name": "DISK_DEVICE",
+      "value": ""
+    },
+    {
+      "name": "TIMEFRAME",
+      "value": ""
+    },
+    {
+      "name": "ETCD_SERVER_IP",
+      "value": ""
+    },
+    {
+      "name": "PATH_TO_ETCD_CONFIG_FILE",
+      "value": ""
+    },
+    {
+      "name": "ETCD_METRICS_ENDPOINT",
+      "value": ""
+    },
+    {
+      "name": "WAL_SYNC_INTERVAL",
+      "value": ""
+    },
+    {
+      "name": "HOST_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Etcd high fsync durations incident.\nThe Etcd high fsync durations incident occurs when the fsync duration of the Etcd service exceeds a certain threshold. This can be caused by various factors, such as high load, network issues, or other system errors. When this incident occurs, it can impact the performance and availability of the Etcd service, and it requires immediate attention from the responsible team to diagnose and resolve the underlying issue."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if Etcd service is running"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `systemctl status etcd.service`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check Etcd log for any errors or warnings"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `journalctl -u etcd.service --since \"${TIMEFRAME}\" | grep -iE 'error|warn'`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check Etcd metrics for fsync duration"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `curl -s ${ETCD_METRICS_ENDPOINT} | grep etcd_disk_backend_commit_duration_seconds`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check system load and resource usage"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `top -n 1`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check network connectivity and latency to Etcd server"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_ping_traceroute($ETCD_SERVER_IP)"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check disk I/O performance"
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `iostat -xd ${DISK_DEVICE}`"
+    },
+    {
+      "name": "cell_14",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## High load: If the Etcd service is experiencing high traffic or a sudden spike in requests, it can cause the fsync duration to increase, leading to this incident."
+    },
+    {
+      "name": "cell_15",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_etcd_fsync_check()"
+    },
+    {
+      "name": "cell_16",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Optimize the Etcd configuration settings, such as the WAL sync interval and the number of concurrent compacting processes, to improve the system performance and reduce the fsync duration."
+    },
+    {
+      "name": "cell_17",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_etcd_config_update($CONCURRENT_COMPACTING_PROCESSES, $PATH_TO_ETCD_CONFIG_FILE, $WAL_SYNC_INTERVAL)"
+    }
+  ]
+}
